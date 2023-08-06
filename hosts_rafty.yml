@@ -5,20 +5,21 @@ all:
       ansible_connection: local
   vars:
     global_domain: example.com
-    global_chaincode_lang: golang # Programming language of chaincode
-    global_chaincode_version: 1.0 # Your chaincode version
+    global_chaincode_lang: javascript # Programming language of chaincode
+    global_chaincode_version: 2.0 # Your chaincode version
+    global_chaincode_seq: 2
     global_channels:
       - name: common # Channel name
         particapants: # Organizations, should be included in channel
           - org0
-          - org1
         chaincode: # Chaincode params
           name: chaincode
           filename: chaincode
           version: "{{ global_chaincode_version }}"
           policy: ""
-          init: '{"Args":["init","a","100","b","100"]}'
-    orderer_count: 2 # Amount of orderers in network
+          init: ''
+    orderer_count: 1 # Amount of orderers in network
+    newcomers: yes # Define a newcomers flag, to pass safety check.
   children:
     nodes:
       hosts:
@@ -28,8 +29,6 @@ all:
             - orderer # This node will host an orderer-service
             - peer # This node will host peers and api containers for organization
             - root_peer # This node will be used to create channels and instantiate chaincode
-          #   - explorer # This node will serve hyperledger fabric explorer
-          #   - monitoring # This node will serve hyperledger fabric monitoring
           org: org0 # Organization name
           org_id: 0
           orderer_id: 0
@@ -45,13 +44,14 @@ all:
           ansible_become_method: sudo
           #ansible_become_user: host2
           ansible_become_password: "ZGtmuw8AMpXS"
-        org1.example.com:
+        peer1.org0.example.com:
           node_roles:
-            # - orderer # This node will host an orderer-service
-            - peer # This node will host peers and api containers for organization
-            # - explorer
-          org: org1
-          org_id: 1 # ID of orderer-service which is running on this host
+            - extra_peer
+            - newcomer
+          org: org0
+          org_id: 0
+          orderer_id: 0
+          peer_id: 1
           peer_port: 8051
           peer_cc_port: 8052
           peer_op_port: 10444
@@ -63,3 +63,4 @@ all:
           ansible_become_method: sudo
           #ansible_become_user: host3
           ansible_become_password: "yqK5xTqQQ3eU"
+          newcomers: yes
