@@ -9,7 +9,7 @@
       - "absent"
       - "directory"
 
-- import_playbook: start-monitoring.yml    
+#- import_playbook: start-monitoring.yml    
 
 - hosts: nodes
   tasks:
